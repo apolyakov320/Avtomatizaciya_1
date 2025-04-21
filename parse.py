@@ -32,7 +32,7 @@ filters_descr =(
 # Применим фильтр для столбца Тип дома
 df.loc[filters_descr, 'Тип дома'] = 'ЧС'
 
-# Функция для извлечения адреса (с обработкой NaN и не-строк)
+# Функция для извлечения нового адреса (с обработкой NaN и не-строк)
 def extract_address(description):
     if pd.isna(description) or not isinstance(description, str): # Проверка на NaN и нестроковые значения:
         return None
@@ -46,28 +46,28 @@ df.insert(position_newAddress, 'Новый адрес', '')
 # Применяем функцию к столбцу
 df['Новый адрес'] = df['Описание задания'].apply(extract_address)
 
-#выделение Старого адреса
+# Функция для извлечения старого адреса
 def extract_old_address (description_old): 
     if pd.isna(description_old) or not isinstance (description_old, str):
         return None 
-    
     match = re.search(r'Адрес выезда(.*?)Адрес въезда', description_old, re.DOTALL) or re.search(r'Старый адрес(.*?)- Основной телефон', description_old, re.DOTALL) 
     return match.group(1).strip() if match else None 
-
+# Вставляем столбец 'Старый адрес' на конкретную позицию (после столбца 'Новый адрес')
 position_old_address = df.columns.get_loc("Тип дома")+2
 df.insert(position_old_address, "Старый адрес", "")
+# Применяем функцию к столбцу
 df["Старый адрес"] = df["Описание задания"].apply(extract_old_address) 
 
-#выделение телефона
+# Функция для извлечения телефона
 def extract_phone (description_phone): 
     if pd.isna(description_phone) or not isinstance (description_phone, str):
         return None 
-    
     match = re.search(r'Основной телефон для связи:(.*?)ID запуска скрипта', description_phone, re.DOTALL) or re.search(r'Контактный телефон:(.*?)Email', description_phone, re.DOTALL) 
     return match.group(1).strip() if match else None 
-
+# Вставляем столбец 'Телефон' на конкретную позицию (после столбца 'Старый адрес')
 position_phone = df.columns.get_loc("Тип дома")+3
 df.insert(position_phone, "Телефон", "")
+# Применяем функцию к столбцу
 df["Телефон"] = df["Описание задания"].apply(extract_phone) 
 
 # Объединим фильтры в одну переменную
